@@ -1,0 +1,7 @@
+1. Al .jar se le hizo deploy en Docker (https://www.docker.com/products/docker-desktop)
+2. Luego de instalar Docker correctamente, es necesario realizar las siguientes instrucciones en linea de comandos (CMD)
+	- docker pull 7romp4/dataeng-challenge:latest (El repositorio es de acceso público)
+	- luego de realizar el Pull, ejecutamos el programa con la siguiente instrucción:  docker run 7romp4/dataeng-challenge
+3. El .jar se ejecutará bajo Docker, el cual mostrará la ejecución por Spring, y generará los 4 archivos CSV con los resultados 
+
+	
