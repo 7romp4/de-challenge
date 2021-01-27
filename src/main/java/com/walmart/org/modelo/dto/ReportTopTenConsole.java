@@ -1,5 +1,6 @@
 package com.walmart.org.modelo.dto;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,12 +14,18 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.walmart.org.helper.ScoreWriterHelper;
 import com.walmart.org.modelo.Console;
 import com.walmart.org.modelo.Score;
 import com.walmart.org.repo.ConsoleRepo;
 import com.walmart.org.repo.ScoreRepo;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class ReportTopTenConsole implements Tasklet,StepExecutionListener {
+	
+	private static final String ROUTE = "top10gamesconsole.csv";
 	
 	@Autowired
 	private ScoreRepo scoreRepo;
@@ -35,11 +42,15 @@ public class ReportTopTenConsole implements Tasklet,StepExecutionListener {
 		consoles = consoleRepo.findAll();
 		scores = scoreRepo.findAll();
 		
-		System.out.println("========= TOP 10 GAMES =======");
+		log.info("========= TOP 10 GAMES / CONSOLE =======");
 	}
 
 	@Override
 	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+		
+		
+		List<ScoreWriter> scoresWriter = new ArrayList<>();
+		
 		consoles.forEach(console -> {
 			List<Score> filtrado = scores
 					.stream()
@@ -47,10 +58,11 @@ public class ReportTopTenConsole implements Tasklet,StepExecutionListener {
 					.sorted(Comparator.comparing(Score::getMetascore).reversed())
 					.collect(Collectors.toList())
 					.subList(0, 10);
-			filtrado.forEach(filtro ->{
-				System.out.println(filtro.getMetascore()+" - "+filtro.getName()+" - "+filtro.getConsole().getName());
+			filtrado.forEach(f -> {
+				scoresWriter.add(ScoreWriterHelper.scoreToSw(f));
 			});
 		});
+		ScoreWriterHelper.writeToCSV(ROUTE, scoresWriter);
 		return null;
 	}
 	
